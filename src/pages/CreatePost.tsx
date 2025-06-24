@@ -1,147 +1,85 @@
-
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { createPost } from '@/integrations/supabase/posts';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 const CreatePost = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [tags, setTags] = useState('');
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (!user) {
-      navigate('/auth');
-    }
-  }, [user, navigate]);
+  const mutation = useMutation(createPost, {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      toast.success('Post created successfully!');
+      navigate('/');
+    },
+    onError: (error: any) => {
+      toast.error(`Failed to create post: ${error.message}`);
+    },
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !content.trim()) {
-      toast.error('Please fill in title and content');
+    if (!title || !content) {
+      toast.error('Please fill in all fields');
       return;
     }
 
-    setLoading(true);
-    try {
-      const tagArray = tags
-        .split(',')
-        .map(tag => tag.trim())
-        .filter(tag => tag.length > 0);
-
-      const { error } = await supabase
-        .from('posts')
-        .insert({
-          title: title.trim(),
-          content: content.trim(),
-          tags: tagArray,
-          author_id: user!.id
-        });
-
-      if (error) throw error;
-
-      toast.success('Post created successfully!');
-      navigate('/');
-    } catch (error) {
-      console.error('Error creating post:', error);
-      toast.error('Failed to create post');
-    } finally {
-      setLoading(false);
-    }
+    mutation.mutate({ title, content });
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/')}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Button>
-          <h1 className="text-xl font-semibold">Create New Post</h1>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Create New Post</h1>
+            <p className="text-muted-foreground">Share something interesting with the community</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+            <Button variant="outline" onClick={() => navigate('/')}>
+              Back to Home
+            </Button>
+          </div>
         </div>
-      </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-6">
         <Card>
-          <CardHeader>
-            <CardTitle>Share your thoughts with the community</CardTitle>
-          </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-                  Title
-                </label>
                 <Input
-                  id="title"
                   type="text"
-                  placeholder="Enter a catchy title for your post"
+                  placeholder="Title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   required
                 />
               </div>
-
               <div>
-                <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
-                  Content
-                </label>
                 <Textarea
-                  id="content"
-                  placeholder="Write your post content here..."
+                  placeholder="Content"
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  rows={8}
                   required
+                  className="min-h-[100px]"
                 />
               </div>
-
-              <div>
-                <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-2">
-                  Tags (optional)
-                </label>
-                <Input
-                  id="tags"
-                  type="text"
-                  placeholder="Enter tags separated by commas (e.g., javascript, react, web-dev)"
-                  value={tags}
-                  onChange={(e) => setTags(e.target.value)}
-                />
-                <p className="text-sm text-gray-500 mt-1">
-                  Tags help others discover your post
-                </p>
-              </div>
-
-              <div className="flex gap-4">
-                <Button type="submit" disabled={loading}>
-                  {loading ? 'Creating...' : 'Create Post'}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigate('/')}
-                >
-                  Cancel
-                </Button>
-              </div>
+              <Button type="submit" className="w-full" disabled={mutation.isLoading}>
+                {mutation.isLoading ? 'Creating...' : 'Create Post'}
+              </Button>
             </form>
           </CardContent>
         </Card>
-      </main>
+      </div>
     </div>
   );
 };
