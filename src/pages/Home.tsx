@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -8,7 +9,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Heart, MessageCircle, Search, Plus, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 interface Post {
   id: string;
@@ -120,110 +120,109 @@ const Home = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              DevConnect Mini
-            </h1>
-            <p className="text-muted-foreground">Share your thoughts with the developer community</p>
-          </div>
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900">DevConnect Mini</h1>
           <div className="flex items-center gap-4">
-            <ThemeToggle />
-            <Button variant="outline" onClick={handleSignOut}>
+            <Button onClick={() => navigate('/create')} className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Create Post
+            </Button>
+            <Button variant="outline" onClick={handleSignOut} className="flex items-center gap-2">
+              <LogOut className="h-4 w-4" />
               Sign Out
             </Button>
           </div>
         </div>
+      </header>
 
-        <main className="max-w-4xl mx-auto px-4 py-6">
-          <div className="mb-6">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                type="text"
-                placeholder="Search posts by title, content, or tags..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
+      <main className="max-w-4xl mx-auto px-4 py-6">
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              type="text"
+              placeholder="Search posts by title, content, or tags..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          {posts.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500">No posts found. Create the first one!</p>
             </div>
-          </div>
-
-          <div className="space-y-6">
-            {posts.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-500">No posts found. Create the first one!</p>
-              </div>
-            ) : (
-              posts.map((post) => (
-                <Card key={post.id} className="cursor-pointer hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle 
-                          className="text-lg hover:text-blue-600"
-                          onClick={() => navigate(`/post/${post.id}`)}
-                        >
-                          {post.title}
-                        </CardTitle>
-                        <CardDescription>
-                          by {post.profiles?.username} • {new Date(post.created_at).toLocaleDateString()}
-                        </CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p 
-                      className="text-gray-700 mb-4 line-clamp-3"
-                      onClick={() => navigate(`/post/${post.id}`)}
-                    >
-                      {post.content}
-                    </p>
-                    
-                    {post.tags && post.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {post.tags.map((tag, index) => (
-                          <Badge key={index} variant="secondary">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-                    
-                    <div className="flex items-center gap-4">
-                      <button
-                        onClick={() => toggleLike(post.id)}
-                        className={`flex items-center gap-1 px-3 py-1 rounded-md transition-colors ${
-                          post.likes.some(l => l.user_id === user?.id)
-                            ? 'text-red-600 bg-red-50 hover:bg-red-100'
-                            : 'text-gray-600 hover:text-red-600 hover:bg-gray-50'
-                        }`}
-                      >
-                        <Heart 
-                          className={`h-4 w-4 ${
-                            post.likes.some(l => l.user_id === user?.id) ? 'fill-current' : ''
-                          }`} 
-                        />
-                        {post.likes.length}
-                      </button>
-                      
-                      <button
+          ) : (
+            posts.map((post) => (
+              <Card key={post.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <CardTitle 
+                        className="text-lg hover:text-blue-600"
                         onClick={() => navigate(`/post/${post.id}`)}
-                        className="flex items-center gap-1 px-3 py-1 rounded-md text-gray-600 hover:text-blue-600 hover:bg-gray-50 transition-colors"
                       >
-                        <MessageCircle className="h-4 w-4" />
-                        {post.comments.length}
-                      </button>
+                        {post.title}
+                      </CardTitle>
+                      <CardDescription>
+                        by {post.profiles?.username} • {new Date(post.created_at).toLocaleDateString()}
+                      </CardDescription>
                     </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </div>
-        </main>
-      </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p 
+                    className="text-gray-700 mb-4 line-clamp-3"
+                    onClick={() => navigate(`/post/${post.id}`)}
+                  >
+                    {post.content}
+                  </p>
+                  
+                  {post.tags && post.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {post.tags.map((tag, index) => (
+                        <Badge key={index} variant="secondary">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => toggleLike(post.id)}
+                      className={`flex items-center gap-1 px-3 py-1 rounded-md transition-colors ${
+                        post.likes.some(l => l.user_id === user?.id)
+                          ? 'text-red-600 bg-red-50 hover:bg-red-100'
+                          : 'text-gray-600 hover:text-red-600 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Heart 
+                        className={`h-4 w-4 ${
+                          post.likes.some(l => l.user_id === user?.id) ? 'fill-current' : ''
+                        }`} 
+                      />
+                      {post.likes.length}
+                    </button>
+                    
+                    <button
+                      onClick={() => navigate(`/post/${post.id}`)}
+                      className="flex items-center gap-1 px-3 py-1 rounded-md text-gray-600 hover:text-blue-600 hover:bg-gray-50 transition-colors"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      {post.comments.length}
+                    </button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
+      </main>
     </div>
   );
 };
