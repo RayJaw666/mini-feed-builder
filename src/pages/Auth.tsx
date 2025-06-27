@@ -71,7 +71,7 @@ const Auth = () => {
       <Card className="w-full max-w-md relative z-10 backdrop-blur-sm bg-white/95 dark:bg-gray-900/95 border-white/20 shadow-2xl">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            DevConnect Mini
+            Swing
           </CardTitle>
           <CardDescription className="text-gray-600 dark:text-gray-300">
             Join the developer community
