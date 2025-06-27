@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Heart, MessageCircle, Search, Plus, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 interface Post {
   id: string;

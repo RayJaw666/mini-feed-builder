@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -15,7 +16,8 @@ const CreatePost = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const mutation = useMutation(createPost, {
+  const mutation = useMutation({
+    mutationFn: createPost,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
       toast.success('Post created successfully!');
@@ -73,8 +75,8 @@ const CreatePost = () => {
                   className="min-h-[100px]"
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={mutation.isLoading}>
-                {mutation.isLoading ? 'Creating...' : 'Create Post'}
+              <Button type="submit" className="w-full" disabled={mutation.isPending}>
+                {mutation.isPending ? 'Creating...' : 'Create Post'}
               </Button>
             </form>
           </CardContent>
