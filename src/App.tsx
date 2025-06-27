@@ -27,10 +27,11 @@ const App = () => {
       document.head.appendChild(meta);
     }
 
-    // Add mobile-specific styles
-    document.body.style.webkitUserSelect = 'none';
-    document.body.style.webkitTouchCallout = 'none';
-    document.body.style.webkitTapHighlightColor = 'transparent';
+    // Add mobile-specific styles with proper typing
+    const bodyStyle = document.body.style as any;
+    bodyStyle.webkitUserSelect = 'none';
+    bodyStyle.webkitTouchCallout = 'none';
+    bodyStyle.webkitTapHighlightColor = 'transparent';
   }, []);
 
   return (
